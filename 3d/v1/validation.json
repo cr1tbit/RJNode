@@ -1,0 +1,80 @@
+{
+  "pcb_sha256": "cbbdc95ab4102a8df431130c7a84360ae5dcd0ffdc927030e78393db164d8e61",
+  "parts": [
+    {
+      "part": "base",
+      "solid_count": 1,
+      "valid": true,
+      "stl_closed": true,
+      "stl_facets": 8612,
+      "volume_mm3": 73777.89,
+      "print_size_mm": [
+        112.0,
+        112.0,
+        38.0
+      ]
+    },
+    {
+      "part": "lid",
+      "solid_count": 1,
+      "valid": true,
+      "stl_closed": true,
+      "stl_facets": 10602,
+      "volume_mm3": 26633.18,
+      "print_size_mm": [
+        112.0,
+        112.0,
+        5.8
+      ]
+    },
+    {
+      "part": "outputs_cover",
+      "solid_count": 1,
+      "valid": true,
+      "stl_closed": true,
+      "stl_facets": 2044,
+      "volume_mm3": 5341.64,
+      "print_size_mm": [
+        58.0,
+        39.0,
+        2.4
+      ]
+    },
+    {
+      "part": "input_cover",
+      "solid_count": 1,
+      "valid": true,
+      "stl_closed": true,
+      "stl_facets": 2172,
+      "volume_mm3": 2657.08,
+      "print_size_mm": [
+        30.0,
+        38.5,
+        2.4
+      ]
+    },
+    {
+      "part": "fit_coupon",
+      "solid_count": 1,
+      "valid": true,
+      "stl_closed": true,
+      "stl_facets": 2028,
+      "volume_mm3": 3921.49,
+      "print_size_mm": [
+        42.0,
+        16.0,
+        6.0
+      ]
+    }
+  ],
+  "collisions": [],
+  "component_model": "Conservative envelopes, not exact imported supplier models",
+  "parameters": {
+    "wall_mm": 2.8,
+    "floor_mm": 2.8,
+    "pcb_bottom_z_mm": 8.8,
+    "roof_z_mm": 40.8,
+    "overall_height_mm": 43.199999999999996,
+    "gland_hole_mm": 16.2
+  }
+}

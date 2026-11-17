@@ -1,0 +1,171 @@
+{
+  "pcb_sha256": "2b4ec99c9ee2539fb569d03564bdf32a758673e112e73e1fdbde73197900303d",
+  "parts": [
+    {
+      "part": "base",
+      "solid_count": 1,
+      "valid": true,
+      "stl_closed": true,
+      "stl_facets": 18100,
+      "volume_mm3": 56046.64,
+      "print_size_mm": [
+        112.0,
+        74.0,
+        34.0
+      ]
+    },
+    {
+      "part": "lid",
+      "solid_count": 1,
+      "valid": true,
+      "stl_closed": true,
+      "stl_facets": 45440,
+      "volume_mm3": 25429.41,
+      "print_size_mm": [
+        112.0,
+        74.0,
+        11.4
+      ]
+    },
+    {
+      "part": "fit_coupon",
+      "solid_count": 1,
+      "valid": true,
+      "stl_closed": true,
+      "stl_facets": 2600,
+      "volume_mm3": 3921.49,
+      "print_size_mm": [
+        42.0,
+        16.0,
+        6.0
+      ]
+    }
+  ],
+  "collisions": [],
+  "access_checks": [
+    {
+      "terminal": "J501 NC1",
+      "access": "screwdriver",
+      "clear": true
+    },
+    {
+      "terminal": "J501 NC1",
+      "access": "wire",
+      "clear": true
+    },
+    {
+      "terminal": "J501 NO1",
+      "access": "screwdriver",
+      "clear": true
+    },
+    {
+      "terminal": "J501 NO1",
+      "access": "wire",
+      "clear": true
+    },
+    {
+      "terminal": "J502 NC2",
+      "access": "screwdriver",
+      "clear": true
+    },
+    {
+      "terminal": "J502 NC2",
+      "access": "wire",
+      "clear": true
+    },
+    {
+      "terminal": "J502 NO2",
+      "access": "screwdriver",
+      "clear": true
+    },
+    {
+      "terminal": "J502 NO2",
+      "access": "wire",
+      "clear": true
+    },
+    {
+      "terminal": "J503 N1",
+      "access": "screwdriver",
+      "clear": true
+    },
+    {
+      "terminal": "J503 N1",
+      "access": "wire",
+      "clear": true
+    },
+    {
+      "terminal": "J503 N2",
+      "access": "screwdriver",
+      "clear": true
+    },
+    {
+      "terminal": "J503 N2",
+      "access": "wire",
+      "clear": true
+    },
+    {
+      "terminal": "J101 L",
+      "access": "screwdriver",
+      "clear": true
+    },
+    {
+      "terminal": "J101 L",
+      "access": "wire",
+      "clear": true
+    },
+    {
+      "terminal": "J101 N",
+      "access": "screwdriver",
+      "clear": true
+    },
+    {
+      "terminal": "J101 N",
+      "access": "wire",
+      "clear": true
+    },
+    {
+      "LED": "D601",
+      "clear": true
+    },
+    {
+      "LED": "LED3",
+      "clear": true
+    }
+  ],
+  "pcb_alignment": "Terminal pads, LEDs and four mounting holes match current PCB",
+  "export_coordinate_system": "CAD X = KiCad X; CAD Y = -KiCad Y; CAD Z upward",
+  "component_model": "Conservative envelopes, not exact imported supplier models",
+  "parameters": {
+    "wall_mm": 2.8,
+    "floor_mm": 2.8,
+    "pcb_bottom_z_mm": 8.8,
+    "roof_z_mm": 36.8,
+    "overall_height_mm": 36.8,
+    "screwdriver_bore_mm": 4.4,
+    "wire_hole_mm": 4.8,
+    "wire_center_z_mm": 14.6,
+    "led_hole_mm": 2.4
+  },
+  "kicad_model": {
+    "footprint": "H5",
+    "path": "${KIPRJMOD}/3d/v2/kicad_case_H5.step",
+    "offset_mm": [
+      0,
+      0,
+      0
+    ],
+    "rotation_degrees": [
+      0,
+      0,
+      0
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "verified_by": "Native KiCad STEP export and 3D render",
+    "max_bounds_error_mm": 0.005,
+    "note": "PCB model-only change; enclosure geometry unchanged"
+  }
+}

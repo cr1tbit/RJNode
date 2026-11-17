@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RJNode · Relays</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #101820; color: #edf2f7; }
+  body { max-width: 540px; margin: 12vh auto; padding: 24px; }
+  h1 { margin-bottom: 8px; } p { color: #aebdca; }
+  article { display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    background: #1c2935; padding: 24px; border-radius: 16px; margin: 16px 0; }
+  h2 { font-size: 1.1rem; margin: 0 0 8px; } output { color: #aebdca; }
+  button { font: inherit; font-weight: 600; padding: 12px 18px; border: 0;
+    border-radius: 10px; background: #62dbc0; color: #101820; cursor: pointer; }
+  button:disabled { opacity: .45; cursor: wait; }
+  #connection { min-height: 3em; font-size: .9rem; }
+  section { background: #1c2935; padding: 24px; border-radius: 16px; }
+  label { display: block; margin-top: 16px; }
+  input { box-sizing: border-box; width: 100%; margin-top: 6px; padding: 12px;
+    border: 1px solid #526574; border-radius: 8px; font: inherit; background: #101820; color: inherit; }
+  form button { margin-top: 18px; }
+  #forget { margin-top: 12px; background: #d6dfe6; }
+  dl { display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; font-size: .95rem; }
+  dd { margin: 0; overflow-wrap: anywhere; } dt { color: #aebdca; }
+  a { color: #62dbc0; } #wifi-message { min-height: 1.5em; }
+</style>
+<h1>RJNode</h1>
+<p>Relay control</p>
+<article><div><h2>Relay 1</h2><output id="state1">Unknown</output></div><button id="relay1" disabled>Connecting…</button></article>
+<article><div><h2>Relay 2</h2><output id="state2">Unknown</output></div><button id="relay2" disabled>Connecting…</button></article>
+<p id="connection" role="status" aria-live="polite">Connecting to device…</p>
+<section aria-labelledby="wifi-heading">
+  <h2 id="wifi-heading">Wi-Fi range test</h2>
+  <p>Connect to a 2.4 GHz network. Credentials are saved on this board until you forget them.</p>
+  <form id="wifi-form">
+    <label>Network name (SSID)<input id="ssid" name="ssid" required autocomplete="off" maxlength="32"></label>
+    <label>Password<input id="password" name="password" type="password" autocomplete="new-password" maxlength="64"
+      placeholder="Leave empty for an open network"></label>
+    <button id="wifi-connect" type="submit">Save & connect</button>
+  </form>
+  <button id="forget" type="button" disabled>Disable Wi-Fi & forget</button>
+  <p id="wifi-message" role="status" aria-live="polite">Reading Wi-Fi status…</p>
+  <dl>
+    <dt>Status</dt><dd id="wifi-state">Unknown</dd>
+    <dt>Network</dt><dd id="wifi-ssid">—</dd>
+    <dt>Wi-Fi address</dt><dd><a id="wifi-address" hidden target="_blank" rel="noopener"></a><span id="wifi-no-address">—</span></dd>
+    <dt>Signal / channel</dt><dd id="wifi-signal">—</dd>
+    <dt>Connected for</dt><dd id="wifi-duration">—</dd>
+    <dt>Disconnects</dt><dd id="wifi-disconnects">—</dd>
+    <dt>This page uses</dt><dd id="wifi-path">—</dd>
+    <dt>Last status request</dt><dd id="wifi-rtt">—</dd>
+    <dt>Failed status polls</dt><dd id="wifi-failures">0</dd>
+  </dl>
+  <p>For the range test, open the Wi-Fi address above, then unplug Ethernet. Keep USB power connected.
+    Move the board and check that this page keeps updating. Signal closer to 0 dBm is stronger.</p>
+  <p>Credentials are sent over local HTTP. Use this setup page on a trusted network.</p>
+</section>
+<script>
+  let states = [false, false];
+  let busy = false;
+  const buttons = [1, 2].map(id => document.getElementById(`relay${id}`));
+  const connection = document.getElementById('connection');
+  async function request(path, options = {}) {
+    const response = await fetch(path, { cache: 'no-store', signal: AbortSignal.timeout(5000), ...options });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  }
+  function render(data) {
+    states = data.relays;
+    buttons.forEach((button, i) => {
+      document.getElementById(`state${i + 1}`).textContent = states[i] ? 'ON' : 'OFF';
+      button.textContent = states[i] ? 'Turn off' : 'Turn on';
+      button.disabled = false;
+      button.setAttribute('aria-label', `${button.textContent} relay ${i + 1}`);
+    });
+    connection.textContent = 'Connected';
+  }
+  function disconnected() {
+    connection.textContent = 'Connection lost. Relay states unknown; reconnecting…';
+    buttons.forEach((button, i) => {
+      button.disabled = true;
+      document.getElementById(`state${i + 1}`).textContent = 'Unknown';
+    });
+  }
+  async function refresh() {
+    if (busy) return;
+    busy = true;
+    try { render(await request('/api/relays')); }
+    catch { disconnected(); }
+    finally { busy = false; }
+  }
+  buttons.forEach((button, i) => button.addEventListener('click', async () => {
+    if (busy) return;
+    busy = true;
+    buttons.forEach(button => button.disabled = true);
+    try {
+      render(await request(`/api/relays/${i + 1}`, {
+        method: 'POST', headers: { 'Content-Type': 'text/plain', 'X-RJNode-Control': '1' },
+        body: states[i] ? '0' : '1'
+      }));
+    } catch { disconnected(); }
+    finally { busy = false; }
+  }));
+  refresh();
+  setInterval(refresh, 2000);
+
+  const byId = id => document.getElementById(id);
+  let wifiBusy = false;
+  let wifiAction = false;
+  let wifiFailures = 0;
+  const wifiStates = { disabled: 'Disabled', connecting: 'Connecting…', getting_ip: 'Obtaining IP…',
+    connected: 'Connected', retrying: 'Disconnected; retrying…', error: 'Error' };
+  function renderWifi(data, rtt) {
+    byId('wifi-state').textContent = wifiStates[data.state] || data.state;
+    byId('wifi-ssid').textContent = data.ssid || '—';
+    const address = byId('wifi-address');
+    address.hidden = !data.ip;
+    byId('wifi-no-address').hidden = !!data.ip;
+    if (data.ip) {
+      address.href = `http://${data.ip}/`;
+      address.textContent = data.ip;
+    } else { address.removeAttribute('href'); address.textContent = ''; }
+    byId('wifi-signal').textContent = data.rssi_dbm === null ? '—' : `${data.rssi_dbm} dBm / ${data.channel}`;
+    byId('wifi-duration').textContent = data.ip ? `${data.connected_s} s` : '—';
+    byId('wifi-disconnects').textContent = String(data.disconnects);
+    byId('wifi-path').textContent = data.via_wifi ? 'Wi-Fi' : 'Ethernet';
+    byId('wifi-rtt').textContent = `${Math.round(rtt)} ms (HTTP round trip)`;
+    byId('forget').disabled = wifiAction || !(data.enabled || data.configured);
+    if (!wifiAction) byId('wifi-message').textContent = data.error ||
+      (data.state === 'retrying' ? `Connection failed or lost (reason ${data.last_disconnect_reason}); retrying every 3 s.` :
+       data.via_wifi ? 'Testing through Wi-Fi. This page reconnects automatically if the link drops.' :
+       data.ip ? 'Wi-Fi connected. Open its address above to test that link.' :
+       data.enabled ? 'Waiting for Wi-Fi. Check the network name, password, and 2.4 GHz coverage.' : 'Wi-Fi is off.');
+  }
+  async function refreshWifi() {
+    if (wifiBusy || wifiAction) return;
+    wifiBusy = true;
+    const start = performance.now();
+    try { renderWifi(await request('/api/wifi'), performance.now() - start); }
+    catch {
+      byId('wifi-message').textContent = 'Device unreachable. Wi-Fi measurements are stale; reconnecting…';
+      ['wifi-state', 'wifi-signal', 'wifi-duration', 'wifi-path', 'wifi-rtt'].forEach(id => byId(id).textContent = 'Unknown');
+      byId('wifi-failures').textContent = String(++wifiFailures);
+      byId('forget').disabled = true;
+    } finally { wifiBusy = false; }
+  }
+  async function configureWifi(config) {
+    if (wifiAction) return;
+    wifiAction = true;
+    byId('wifi-connect').disabled = true;
+    byId('forget').disabled = true;
+    byId('wifi-message').textContent = config.forget ? 'Disabling Wi-Fi and erasing credentials…' : 'Saving credentials and connecting…';
+    try {
+      await request('/api/wifi', { method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-RJNode-Control': '1' }, body: JSON.stringify(config) });
+      byId('password').value = '';
+      if (config.forget) byId('ssid').value = '';
+    } catch {
+      byId('wifi-message').textContent = 'Could not confirm the request. Reconnect through Ethernet to check the board.';
+    } finally {
+      wifiAction = false;
+      byId('wifi-connect').disabled = false;
+    }
+  }
+  byId('wifi-form').addEventListener('submit', event => {
+    event.preventDefault();
+    configureWifi({ ssid: byId('ssid').value, password: byId('password').value });
+  });
+  byId('forget').addEventListener('click', () => configureWifi({ forget: true }));
+  refreshWifi();
+  setInterval(refreshWifi, 2000);
+</script>
+</html>

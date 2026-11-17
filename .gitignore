@@ -1,0 +1,28 @@
+# KiCad local/generated files
+*-backups/
+_autosave-*
+*.lck
+fp-info-cache
+
+# jlcpcb-tools generated output
+jlcpcb/gerber/
+jlcpcb/production_files/
+
+# PlatformIO / ESP-IDF generated files
+fw/.pio/
+fw/managed_components/
+fw/sdkconfig
+fw/sdkconfig.old
+fw/sdkconfig.*
+!fw/sdkconfig.defaults
+
+# Legacy script backups
+*.bak-*
+
+# PlatformIO-generated IDE files (absolute local paths)
+fw/.vscode/c_cpp_properties.json
+fw/.vscode/launch.json
+fw/.vscode/.browse.c_cpp.db*
+
+# Python bytecode
+__pycache__/

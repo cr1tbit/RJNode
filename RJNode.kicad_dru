@@ -1,0 +1,29 @@
+(version 1)
+
+# --- Mains isolation (handover 5.1) ---------------------------------------
+# Mains <-> mains (L/N, open relay contacts): functional insulation,
+# IEC 60664-1 250 V, pollution degree 2, FR4 (IIIb): creepage 2.5 mm.
+(rule "mains_to_mains"
+  (constraint clearance (min 2.5mm))
+  (constraint creepage (min 2.5mm))
+  (condition "(A.NetClass == 'MAINS*' || A.NetName == '/AC_*' || A.NetName == '/OUT1*' || A.NetName == '/OUT2*' || A.NetName == 'unconnected-?K5*') && (B.NetClass == 'MAINS*' || B.NetName == '/AC_*' || B.NetName == '/OUT1*' || B.NetName == '/OUT2*' || B.NetName == 'unconnected-?K5*')"))
+
+# Mains <-> everything else (SELV, unconnected pads, holes): 5 mm creepage
+# target, 3 mm clearance. Slots in Edge.Cuts count toward creepage.
+(rule "mains_to_selv"
+  (constraint clearance (min 3.0mm))
+  (constraint creepage (min 5.0mm))
+  (condition "(A.NetClass == 'MAINS*' || A.NetName == '/AC_*' || A.NetName == '/OUT1*' || A.NetName == '/OUT2*' || A.NetName == 'unconnected-?K5*') && !(B.NetClass == 'MAINS*' || B.NetName == '/AC_*' || B.NetName == '/OUT1*' || B.NetName == '/OUT2*' || B.NetName == 'unconnected-?K5*')"))
+
+(rule "mains_to_hole"
+  (constraint hole_clearance (min 3.0mm))
+  (condition "(A.NetClass == 'MAINS*' || A.NetName == '/AC_*' || A.NetName == '/OUT1*' || A.NetName == '/OUT2*' || A.NetName == 'unconnected-?K5*') && !(B.NetClass == 'MAINS*' || B.NetName == '/AC_*' || B.NetName == '/OUT1*' || B.NetName == '/OUT2*' || B.NetName == 'unconnected-?K5*')"))
+
+# --- JLC 2-layer limits not covered by the board setup ---------------------
+(rule "pth_annular"
+  (constraint annular_width (min 0.18mm))
+  (condition "A.Type == 'Pad' && A.isPlated()"))
+
+(rule "pth_hole_to_hole"
+  (constraint hole_to_hole (min 0.45mm))
+  (condition "A.Type == 'Pad' && B.Type == 'Pad'"))
